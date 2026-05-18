@@ -35,7 +35,7 @@ def check_answer(user_answer, correct_answer):
         print("You are correct")
         return True
     else:
-        print(f"Yu are wrong, correct answer is {correct_answer}")
+        print(f"You are wrong, correct answer is {correct_answer}")
         return False
 
 
@@ -50,18 +50,27 @@ def instructions():
             Don't worry, if your answer is wrong, the program will tell you the correct answer.^-^
     """)
 
+def get_number_input(prompt):
+    """Gets a valid number from user, keeps asking until they enter one."""
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("Invalid input! Please enter a number.")
 
 # Main routine Starts here
 
-feedback = ""
+MIN_LARGE = 5
+MAX_LARGE = 30
+MIN_SMALL = 1
+MAX_SMALL = 20
 choose = 1
 
 formula_list = ["perimeter", "area"]
 shape_list = ["triangle", "square", "rectangle",]
 quiz_history = []
-random_number1 = number(5, 30)
-random_number2 = number(5, 30)
-random_number3 = number(1,20)
+
+
 
 print("   □△▭!! Welcome to calculation quiz !!□△▭  ")
 print()
@@ -76,71 +85,55 @@ if want_instructions == "yes":
     instructions()
 
 
+
 while True:
-    selected_graph = string_checker("Which shape do you want to learn about?", shape_list)
-    print("You choose", selected_graph)
+    num1 = number(MIN_LARGE, MAX_LARGE)
+    num2 = number(MIN_LARGE, MAX_LARGE)
+    num3 = number(MIN_SMALL, MAX_SMALL)
+    selected_shape = string_checker("Which shape do you want to learn about?", shape_list)
+    print("You choose", selected_shape)
     print()
     formula = string_checker("you want to calculation perimeter or area ?", formula_list)
     print("You choose", formula)
 
-    # the shape is not same so use if to use different formula
+    # Generate question and calculate correct answer based on shape
 
-    if selected_graph == "square":
-        user_answer = float(input(f"What is the {formula} of a square that has a side of {random_number1}? "))
+    if selected_shape == "square":
+        user_answer =  get_number_input(f"What is the {formula} of a square that has a side of {num1}? ")
         if formula == "perimeter":
-            correct_answer = random_number1 * 4
-            is_correct = check_answer(user_answer, correct_answer)
-            feedback = "correct" if is_correct else "wrong"
+            correct_answer = num1 * 4
+        else:
+            correct_answer = num1 ** 2
+        detail = f"side={num1}"
 
-        elif formula == "area":
-            correct_answer = random_number1 * random_number1
-            is_correct = check_answer(user_answer, correct_answer)
-            feedback = "correct" if is_correct else "wrong"
-
-
-
-    elif selected_graph == "triangle":
+    elif selected_shape == "triangle":
         if formula == "perimeter":
-            user_answer = float(input(f"What is the {formula} of a triangle that has sides {random_number1}, {random_number2}, {random_number3}? "))
-            # check user answer is correct
-            correct_answer = random_number1 + random_number2 + random_number3
-            is_correct = check_answer(user_answer, correct_answer)
-            feedback = "correct" if is_correct else "wrong"
+            user_answer =  get_number_input(f"What is the {formula} of a triangle that has sides base{num1}, side{num2}, side{num3}?")
+            correct_answer = num1 + num2 + num3
+        else:
+            user_answer =  get_number_input(f"What is the {formula} of a triangle with base {num1} and height {num3}?")
+            correct_answer = num1 * num3 / 2
+        detail = f"sides={num1},{num2},{num3}"
 
-        elif formula == "area":
-            user_answer = float(input(f"What is the {formula} of a triangle with base {random_number1} and height {random_number3}? "))
-            correct_answer = (random_number1 * random_number3) / 2
-            is_correct = check_answer(user_answer, correct_answer)
-            feedback = "correct" if is_correct else "wrong"
-
-    elif selected_graph == "rectangle":
-        user_answer = float(input(f"What is the {formula} of a rectangle with width {random_number1} and height {random_number2}? "))
-
+    elif selected_shape == "rectangle":
+        user_answer =  get_number_input(f"What is the {formula} of a rectangle with width {num1} and height {num2}?")
         if formula == "perimeter":
-            correct_answer = 2 * (random_number1 + random_number2)
-            is_correct = check_answer(user_answer, correct_answer)
+            correct_answer = 2 * (num1 + num2)
+        else:
+            correct_answer = num1 * num2
+        detail = f"width={num1}, height={num2}"
 
-            #Define feedback to ensure there is a correct value in the history.
-            feedback = "correct" if is_correct else "wrong"
+    # Validate user answer (works for all shapes since variables are set above)
+    is_correct = check_answer(user_answer, correct_answer)
 
-
-
-        elif formula == "area":
-            correct_answer = random_number1 * random_number2
-            is_correct = check_answer(user_answer, correct_answer)
-            feedback = "correct" if is_correct else "wrong"
-
-
-            print(feedback)
-
-    # add round result to quiz history
-    history_feedback = f"Round {choose}: You are {feedback}."
 
     # Generate history item and add it to game_history list...
-    history_item = f"Round {choose}: You choose {selected_graph} {formula} and you are {feedback}."
+    if is_correct:
+        history_item = f"Round {choose}: {selected_shape} {formula}, {detail} = {correct_answer} <correct>"
+    else:
+        history_item = f"Round {choose}: {selected_shape} {formula}, {detail} = {correct_answer} <wrong, your answer was {user_answer}>"
+
     quiz_history.append(history_item)
-
-
 
     # ask user if they want break/continue
     keep_going = string_checker("Do you want to continue?")
